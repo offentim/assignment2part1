@@ -14,6 +14,7 @@ import android.hardware.SensorManager;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -22,11 +23,15 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-
+    private Handler mHandler = new Handler();
+    private LineGraphSeries<DataPoint> series;
     private static final String TAG = "MainActivity";
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    double xValues;
+    double timeStamps;
+    double counter = 1;
 
     TextView xValue, yValue, zValue;
 
@@ -34,7 +39,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Comment 1 test
+
+        GraphView graph = (GraphView) findViewById(R.id.graph);
+        series = new LineGraphSeries<>(new DataPoint[] {
+        });
+
+        graph.addSeries(series);
+        graph.getViewport().setMinX(0);
+        graph.getViewport().setMaxX(1000);
+        graph.getViewport().setXAxisBoundsManual(true);
+
+        addRandomDataPoint();
 
         xValue = (TextView) findViewById(R.id.xValue);
         yValue = (TextView) findViewById(R.id.yValue);
@@ -57,11 +72,32 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    private void addRandomDataPoint(){
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                series.appendData(new DataPoint(counter,xValues),false,10000);
+                addRandomDataPoint();
+
+            }
+        },300);
+
+    }
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Sensor sensor = sensorEvent.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             Log.d(TAG, "onSensorChanged: X: " + sensorEvent.values[0] + "Y: " + sensorEvent.values[1] + "Z: " + sensorEvent.values[2]);
+
+            double x = sensorEvent.values[0];
+            double timeStamp = sensorEvent.timestamp;
+
+            timeStamps=timeStamp;
+            counter++;
+            xValues = x;
+
 
             xValue.setText("xValue: " + sensorEvent.values[0]);
             yValue.setText("yValue: " + sensorEvent.values[1]);
