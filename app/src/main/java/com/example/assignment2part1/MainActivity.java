@@ -1,6 +1,7 @@
 package com.example.assignment2part1;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
@@ -9,6 +10,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+
+
+
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
