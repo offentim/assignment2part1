@@ -11,8 +11,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -25,13 +23,21 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private Handler mHandler = new Handler();
     private LineGraphSeries<DataPoint> series;
+    private LineGraphSeries<DataPoint> series1;
+    private LineGraphSeries<DataPoint> series2;
+    private LineGraphSeries<DataPoint> series3;
+
     private static final String TAG = "MainActivity";
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
     double xValues;
-    double timeStamps;
+    double yValues;
+    double zValues;
+
     double counter = 1;
+
+    double magnitude;
 
     TextView xValue, yValue, zValue;
 
@@ -41,12 +47,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
 
         GraphView graph = (GraphView) findViewById(R.id.graph);
-        series = new LineGraphSeries<>(new DataPoint[] {
-        });
+        series = new LineGraphSeries<>(new DataPoint[] {});
+        series1 = new LineGraphSeries<>(new DataPoint[] {});
+        series2 = new LineGraphSeries<>(new DataPoint[] {});
+        series3 = new LineGraphSeries<>(new DataPoint[] {});
+
 
         graph.addSeries(series);
+        graph.addSeries(series1);
+        graph.addSeries(series2);
+        graph.addSeries(series3);
+        series.setColor(R.color.colorPrimary);
+        series1.setColor(R.color.colorAccent);
+        series1.setColor(R.color.colorPrimaryDark);
+        series3.setColor(R.color.Black);
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(1000);
+        graph.getViewport().setMaxX(50);
         graph.getViewport().setXAxisBoundsManual(true);
 
         addRandomDataPoint();
@@ -80,8 +96,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 series.appendData(new DataPoint(counter,xValues),false,10000);
                 addRandomDataPoint();
 
+                series1.appendData(new DataPoint(counter,yValues),false,10000);
+                addRandomDataPoint();
+
+                series2.appendData(new DataPoint(counter,zValues),false,10000);
+                addRandomDataPoint();
+
+                series3.appendData(new DataPoint(counter,magnitude),false,10000);
+                addRandomDataPoint();
+
             }
-        },300);
+        },1000);
 
     }
 
@@ -89,14 +114,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent sensorEvent) {
         Sensor sensor = sensorEvent.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            Log.d(TAG, "onSensorChanged: X: " + sensorEvent.values[0] + "Y: " + sensorEvent.values[1] + "Z: " + sensorEvent.values[2]);
-
             double x = sensorEvent.values[0];
-            double timeStamp = sensorEvent.timestamp;
+            double y = sensorEvent.values[1];
+            double z = sensorEvent.values[2];
 
-            timeStamps=timeStamp;
+            double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+
+            magnitude = m;
+
             counter++;
             xValues = x;
+            yValues = y;
+            zValues = z;
 
 
             xValue.setText("xValue: " + sensorEvent.values[0]);
