@@ -35,11 +35,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     double yValues;
     double zValues;
 
-    double counter = 1;
+    double counter = 0;
 
     double magnitude;
 
-    TextView xValue, yValue, zValue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,22 +54,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         graph.addSeries(series);
-        graph.addSeries(series1);
-        graph.addSeries(series2);
-        graph.addSeries(series3);
+       graph.addSeries(series1);
+       // graph.addSeries(series2);
+      //  graph.addSeries(series3);
         series.setColor(R.color.colorPrimary);
-        series1.setColor(R.color.colorAccent);
-        series1.setColor(R.color.colorPrimaryDark);
-        series3.setColor(R.color.Black);
+       series1.setColor(R.color.colorAccent);
+       // series1.setColor(R.color.colorPrimaryDark);
+      //  series3.setColor(R.color.Black);
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(50);
+        graph.getViewport().setMaxX(500);
         graph.getViewport().setXAxisBoundsManual(true);
 
         addRandomDataPoint();
 
-        xValue = (TextView) findViewById(R.id.xValue);
-        yValue = (TextView) findViewById(R.id.yValue);
-        zValue = (TextView) findViewById(R.id.zValue);
+
 
         Log.d(TAG, "onCreate: Initalising Sensor Services");
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -80,9 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Log.d(TAG, "onCreate: Register accelerometer listener");
         }
         else{
-            xValue.setText(("Accelerometer Not Supported"));
-            yValue.setText(("Accelerometer Not Supported"));
-            zValue.setText(("Accelerometer Not Supported"));
+
 
         }
 
@@ -99,14 +95,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 series1.appendData(new DataPoint(counter,yValues),false,10000);
                 addRandomDataPoint();
 
-                series2.appendData(new DataPoint(counter,zValues),false,10000);
-                addRandomDataPoint();
+                //series2.appendData(new DataPoint(counter,zValues),false,10000);
+                //addRandomDataPoint();
 
-                series3.appendData(new DataPoint(counter,magnitude),false,10000);
-                addRandomDataPoint();
+                //series3.appendData(new DataPoint(counter,magnitude),false,100000);
+                //addRandomDataPoint();
 
             }
-        },1000);
+        },0);
 
     }
 
@@ -115,22 +111,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = sensorEvent.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             double x = sensorEvent.values[0];
-            double y = sensorEvent.values[1];
-            double z = sensorEvent.values[2];
+           double y = sensorEvent.values[1];
+           // double z = sensorEvent.values[2];
 
-            double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+            //double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
 
-            magnitude = m;
+           // magnitude = m;
 
             counter++;
             xValues = x;
             yValues = y;
-            zValues = z;
-
-
-            xValue.setText("xValue: " + sensorEvent.values[0]);
-            yValue.setText("yValue: " + sensorEvent.values[1]);
-            zValue.setText("zValue: " + sensorEvent.values[2]);
+           // zValues = z;
         }
     }
 
@@ -140,6 +131,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     protected void onResume() {
         super.onResume();
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
     }
 }
