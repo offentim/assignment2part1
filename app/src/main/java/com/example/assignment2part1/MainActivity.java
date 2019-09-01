@@ -54,52 +54,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         graph.addSeries(series);
-       graph.addSeries(series1);
-       // graph.addSeries(series2);
-      //  graph.addSeries(series3);
-        series.setColor(R.color.colorPrimary);
-       series1.setColor(R.color.colorAccent);
-       // series1.setColor(R.color.colorPrimaryDark);
-      //  series3.setColor(R.color.Black);
+        //graph.addSeries(series1);
+        //graph.addSeries(series2);
+        //graph.addSeries(series3);
+        //series.setColor(R.color.colorPrimary);
+        series1.setColor(R.color.colorAccent);
+        //series1.setColor(R.color.colorPrimaryDark);
+        //series3.setColor(R.color.Black);
+
+
         graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(500);
+        graph.getViewport().setMaxX(1000);
         graph.getViewport().setXAxisBoundsManual(true);
 
         addRandomDataPoint();
 
 
-
-        Log.d(TAG, "onCreate: Initalising Sensor Services");
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        ;
+
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if(accelerometer != null){
-            sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, "onCreate: Register accelerometer listener");
-        }
-        else{
-
-
+        sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         }
 
-    }
+
+
+
 
     private void addRandomDataPoint(){
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
 
-                series.appendData(new DataPoint(counter,xValues),false,10000);
+                series.appendData(new DataPoint(counter,xValues),false,1000);
                 addRandomDataPoint();
 
-                series1.appendData(new DataPoint(counter,yValues),false,10000);
-                addRandomDataPoint();
-
-                //series2.appendData(new DataPoint(counter,zValues),false,10000);
+                //series1.appendData(new DataPoint(counter,yValues),false,1000);
                 //addRandomDataPoint();
 
-                //series3.appendData(new DataPoint(counter,magnitude),false,100000);
-                //addRandomDataPoint();
+                //series2.appendData(new DataPoint(counter,zValues),false,1000);
+               // addRandomDataPoint();
+
+               // series3.appendData(new DataPoint(counter,magnitude),false,10000);
+               // addRandomDataPoint();
 
             }
         },0);
@@ -111,17 +107,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Sensor sensor = sensorEvent.sensor;
         if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             double x = sensorEvent.values[0];
-           double y = sensorEvent.values[1];
-           // double z = sensorEvent.values[2];
+            double y = sensorEvent.values[1];
+            double z = sensorEvent.values[2];
 
-            //double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+            double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
 
-           // magnitude = m;
+           magnitude = m;
 
             counter++;
             xValues = x;
             yValues = y;
-           // zValues = z;
+            zValues = z;
         }
     }
 
