@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mChart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            mChart.setVisibleXRangeMaximum(250);
+            mChart.setVisibleXRangeMaximum(150);
             // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         set.setLineWidth(1f);
         set.setColor(color);
         set.setHighlightEnabled(false);
-        set.setDrawValues(false);
+        set.setDrawValues(true);
         set.setDrawCircles(false);
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set.setCubicIntensity(0.2f);
