@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // enable scaling and dragging
         mChart.setDragEnabled(true);
         mChart.setScaleEnabled(true);
-        mChart.setDrawGridBackground(false);
+        mChart.setDrawGridBackground(true);
 
         // if disabled, scaling can be done on x- and y-axis separately
         mChart.setPinchZoom(true);
@@ -75,9 +75,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         LineData data = new LineData();
         data.setValueTextColor(Color.BLUE);
 
+        LineData data1 = new LineData();
 
         // add empty data
         mChart.setData(data);
+        mChart.setData(data1);
 
 
         // get the legend (only possible after setting data)
@@ -88,16 +90,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         l.setTextColor(Color.WHITE);
 
         XAxis xl = mChart.getXAxis();
-        xl.setTextColor(Color.WHITE);
+        xl.setTextColor(Color.BLACK);
         xl.setDrawGridLines(true);
         xl.setAvoidFirstLastClipping(true);
         xl.setEnabled(true);
 
         YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setTextColor(Color.BLACK);
         leftAxis.setDrawGridLines(true);
-        leftAxis.setAxisMaximum(20f);
-        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(30f);
+        leftAxis.setAxisMinimum(-10f);
         leftAxis.setDrawGridLines(true);
 
         YAxis rightAxis = mChart.getAxisRight();
@@ -114,26 +116,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void addEntry(SensorEvent event) {
 
         LineData data = mChart.getData();
+        //LineData data1 = mChart.getData();
 
         if (data != null) {
 
             ILineDataSet set = data.getDataSetByIndex(0);
-            // set.addEntry(...); // can be called as well
+            //ILineDataSet set1 = data1.getDataSetByIndex(0);
+
 
             if (set == null) {
                 set = createSet();
+                //set1 = createSet1();
                 data.addDataSet(set);
+                //data1.addDataSet(set1);
             }
 
             data.addEntry(new Entry(set.getEntryCount(), event.values[0] + 5), 0);
             data.notifyDataChanged();
+
+            //data1.addEntry(new Entry(set.getEntryCount(), event.values[1] + 5), 0);
+            //data1.notifyDataChanged();
 
 
             // let the chart know it's data has changed
             mChart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            mChart.setVisibleXRangeMaximum(150);
+            mChart.setVisibleXRangeMaximum(250);
             // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -144,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private LineDataSet createSet() {
 
-        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        LineDataSet set = new LineDataSet(null, "X Value");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setLineWidth(1f);
         set.setColor(Color.BLUE);
@@ -154,6 +163,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set.setCubicIntensity(0.2f);
         return set;
+    }
+
+    private  LineDataSet createSet1(){
+        LineDataSet set1 = new LineDataSet(null,"Y Values");
+        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set1.setLineWidth(1f);
+        set1.setColor(Color.RED);
+        set1.setHighlightEnabled(false);
+        set1.setDrawValues(false);
+        set1.setDrawCircles(false);
+        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set1.setCubicIntensity(0.2f);
+        return set1;
     }
 
 
@@ -199,11 +221,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
-        double x = event.values[0];
-        double y = event.values[1];
-        double z = event.values[2];
+        //double x = event.values[0];
+        //double y = event.values[1];
+       // double z = event.values[2];
 
-        double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+       // double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
 
 
         if(plotData){
