@@ -9,6 +9,9 @@ import android.hardware.SensorManager;
 //import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -30,12 +33,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private Sensor sensors;
+    private SeekBar sBar;
+    private TextView tView;
 
     private LineChart mChart;
     private Thread thread;
     private boolean plotData = true;
+    private int vale = 0;
 
     float magnitude;
+
 
 
 
@@ -44,8 +51,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
+        sBar =  findViewById(R.id.seekBar1);
+        tView = findViewById(R.id.textview1);
+        tView.setText(sBar.getProgress() + "/" + sBar.getMax());
+        sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                vale = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //write custom code to on start progress
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                tView.setText(vale + "/" + seekBar.getMax());
+            }
+        });
+
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
@@ -167,7 +194,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mChart.notifyDataSetChanged();
 
             // limit the number of visible entries
-            mChart.setVisibleXRangeMaximum(150);
+            mChart.setVisibleXRangeMaximum(250);
+
             // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -183,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         set.setLineWidth(1f);
         set.setColor(color);
         set.setHighlightEnabled(false);
-        set.setDrawValues(true);
+        set.setDrawValues(false);
         set.setDrawCircles(false);
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set.setCubicIntensity(0.2f);
