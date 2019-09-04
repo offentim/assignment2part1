@@ -5,18 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+<com.github.mikephil.charting.charts.LineChart
+android:id="@+id/chart1"
+android:layout_width="match_parent"
+android:layout_height="250sp"
+android:layout_marginStart="8dp"
+android:layout_marginLeft="8dp"
+android:layout_marginTop="30dp"
+android:layout_marginEnd="8dp"
+android:layout_marginRight="8dp"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toTopOf="parent"/>
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart1"
-        android:layout_width="match_parent"
-        android:layout_height="250sp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+<SeekBar
+android:id="@+id/seekBar1"
+android:layout_width="300dp"
+android:layout_height="0dp"
+android:layout_marginTop="10dp"
+tools:layout_editor_absoluteX="185dp"
+tools:layout_editor_absoluteY="447dp"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+android:progressBackgroundTint="#f4511e"
+android:max="250"
+android:progress="0"
+android:indeterminate="false"/>
+<TextView
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toTopOf="parent"
+android:id="@+id/textview1"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_alignLeft="@+id/seekBar1"
+android:layout_below="@+id/seekBar1"
+android:layout_marginTop="40dp"
+android:layout_marginLeft="130dp"
+android:textSize="20dp"
+android:textStyle="bold"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
