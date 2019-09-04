@@ -35,6 +35,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Thread thread;
     private boolean plotData = true;
 
+    float magnitude;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,11 +80,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         LineData data = new LineData();
         data.setValueTextColor(Color.BLUE);
 
-        LineData data1 = new LineData();
+        //LineData data1 = new LineData();
 
         // add empty data
         mChart.setData(data);
-        mChart.setData(data1);
+        //mChart.setData(data1);
 
 
         // get the legend (only possible after setting data)
@@ -121,17 +126,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (data != null) {
 
             ILineDataSet set = data.getDataSetByIndex(0);
-            //ILineDataSet set1 = data1.getDataSetByIndex(0);
+            ILineDataSet set1 = data.getDataSetByIndex(1);
+            ILineDataSet set2 = data.getDataSetByIndex(2);
+            ILineDataSet set3 = data.getDataSetByIndex(3);
 
 
             if (set == null) {
-                set = createSet();
+                set = createSet("X Value",Color.RED);
                 //set1 = createSet1();
                 data.addDataSet(set);
                 //data1.addDataSet(set1);
             }
 
-            data.addEntry(new Entry(set.getEntryCount(), event.values[0] + 5), 0);
+            if(set1 == null){
+                set1 = createSet("Y Value",Color.BLUE);
+                data.addDataSet(set1);
+            }
+
+            if(set2 == null){
+                set2 = createSet("Z Value",Color.GREEN);
+                data.addDataSet(set2);
+            }
+
+            if(set3 == null){
+                set3 = createSet("Magnitude",Color.BLACK);
+                data.addDataSet(set3);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(),  event.values[0]), 0);
+            data.addEntry(new Entry(set1.getEntryCount(), event.values[1]), 1);
+            data.addEntry(new Entry(set2.getEntryCount(), event.values[2]), 2);
+            data.addEntry(new Entry(set2.getEntryCount(), magnitude), 3);
             data.notifyDataChanged();
 
             //data1.addEntry(new Entry(set.getEntryCount(), event.values[1] + 5), 0);
@@ -151,12 +176,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    private LineDataSet createSet() {
+    private LineDataSet createSet(String name, int color) {
 
-        LineDataSet set = new LineDataSet(null, "X Value");
+        LineDataSet set = new LineDataSet(null, name);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setLineWidth(1f);
-        set.setColor(Color.BLUE);
+        set.setColor(color);
         set.setHighlightEnabled(false);
         set.setDrawValues(false);
         set.setDrawCircles(false);
@@ -165,18 +190,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return set;
     }
 
-    private  LineDataSet createSet1(){
-        LineDataSet set1 = new LineDataSet(null,"Y Values");
-        set1.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set1.setLineWidth(1f);
-        set1.setColor(Color.RED);
-        set1.setHighlightEnabled(false);
-        set1.setDrawValues(false);
-        set1.setDrawCircles(false);
-        set1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set1.setCubicIntensity(0.2f);
-        return set1;
-    }
 
 
     private void feedMultiple() {
@@ -221,11 +234,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public final void onSensorChanged(SensorEvent event) {
-        //double x = event.values[0];
-        //double y = event.values[1];
-       // double z = event.values[2];
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
 
-       // double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+       double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+       float mM = (float)m;
+
+       magnitude = mM;
+
 
 
         if(plotData){
