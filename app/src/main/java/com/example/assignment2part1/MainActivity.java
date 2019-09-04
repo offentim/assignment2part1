@@ -1,116 +1,228 @@
 package com.example.assignment2part1;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import androidx.core.app.ActivityCompat;
-
-import android.Manifest;
 import android.content.Context;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-
-
-
+//import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.assignment2part1.R;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
-    private Handler mHandler = new Handler();
-    private LineGraphSeries<DataPoint> series;
     private static final String TAG = "MainActivity";
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private Sensor sensors;
 
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
-    double xValues;
-    double timeStamps;
-    double counter = 1;
-
-    TextView xValue, yValue, zValue;
+    private LineChart mChart;
+    private Thread thread;
+    private boolean plotData = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        GraphView graph = (GraphView) findViewById(R.id.graph);
-        series = new LineGraphSeries<>(new DataPoint[] {
-        });
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        graph.addSeries(series);
-        graph.getViewport().setMinX(0);
-        graph.getViewport().setMaxX(1000);
-        graph.getViewport().setXAxisBoundsManual(true);
+        List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
-        addRandomDataPoint();
-
-        xValue = (TextView) findViewById(R.id.xValue);
-        yValue = (TextView) findViewById(R.id.yValue);
-        zValue = (TextView) findViewById(R.id.zValue);
-
-        Log.d(TAG, "onCreate: Initalising Sensor Services");
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        ;
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        if(accelerometer != null){
-            sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-            Log.d(TAG, "onCreate: Register accelerometer listener");
+        for(int i=0; i<sensors.size(); i++){
+            Log.d(TAG, "onCreate: Sensor "+ i + ": " + sensors.get(i).toString());
         }
-        else{
-            xValue.setText(("Accelerometer Not Supported"));
-            yValue.setText(("Accelerometer Not Supported"));
-            zValue.setText(("Accelerometer Not Supported"));
 
+        if (mAccelerometer != null) {
+            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         }
+
+        mChart = (LineChart) findViewById(R.id.chart1);
+
+        // enable description text
+        mChart.getDescription().setEnabled(true);
+
+        // enable touch gestures
+        mChart.setTouchEnabled(true);
+
+        // enable scaling and dragging
+        mChart.setDragEnabled(true);
+        mChart.setScaleEnabled(true);
+        mChart.setDrawGridBackground(false);
+
+        // if disabled, scaling can be done on x- and y-axis separately
+        mChart.setPinchZoom(true);
+
+        // set an alternative background color
+        mChart.setBackgroundColor(Color.LTGRAY);
+
+        LineData data = new LineData();
+        data.setValueTextColor(Color.BLUE);
+
+
+        // add empty data
+        mChart.setData(data);
+
+
+        // get the legend (only possible after setting data)
+        Legend l = mChart.getLegend();
+
+        // modify the legend ...
+        l.setForm(Legend.LegendForm.LINE);
+        l.setTextColor(Color.WHITE);
+
+        XAxis xl = mChart.getXAxis();
+        xl.setTextColor(Color.WHITE);
+        xl.setDrawGridLines(true);
+        xl.setAvoidFirstLastClipping(true);
+        xl.setEnabled(true);
+
+        YAxis leftAxis = mChart.getAxisLeft();
+        leftAxis.setTextColor(Color.WHITE);
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setAxisMaximum(20f);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = mChart.getAxisRight();
+        rightAxis.setEnabled(false);
+
+        mChart.getAxisLeft().setDrawGridLines(false);
+        mChart.getXAxis().setDrawGridLines(false);
+        mChart.setDrawBorders(false);
+
+        feedMultiple();
 
     }
 
-    private void addRandomDataPoint(){
-        mHandler.postDelayed(new Runnable() {
+    private void addEntry(SensorEvent event) {
+
+        LineData data = mChart.getData();
+
+        if (data != null) {
+
+            ILineDataSet set = data.getDataSetByIndex(0);
+            // set.addEntry(...); // can be called as well
+
+            if (set == null) {
+                set = createSet();
+                data.addDataSet(set);
+            }
+
+            data.addEntry(new Entry(set.getEntryCount(), event.values[0] + 5), 0);
+            data.notifyDataChanged();
+
+
+            // let the chart know it's data has changed
+            mChart.notifyDataSetChanged();
+
+            // limit the number of visible entries
+            mChart.setVisibleXRangeMaximum(150);
+            // mChart.setVisibleYRange(30, AxisDependency.LEFT);
+
+            // move to the latest entry
+            mChart.moveViewToX(data.getEntryCount());
+
+        }
+    }
+
+    private LineDataSet createSet() {
+
+        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        set.setAxisDependency(YAxis.AxisDependency.LEFT);
+        set.setLineWidth(1f);
+        set.setColor(Color.BLUE);
+        set.setHighlightEnabled(false);
+        set.setDrawValues(false);
+        set.setDrawCircles(false);
+        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        set.setCubicIntensity(0.2f);
+        return set;
+    }
+
+
+    private void feedMultiple() {
+
+        if (thread != null){
+            thread.interrupt();
+        }
+
+        thread = new Thread(new Runnable() {
+
             @Override
             public void run() {
-
-                series.appendData(new DataPoint(counter,xValues),false,10000);
-                addRandomDataPoint();
-
+                while (true){
+                    plotData = true;
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        },300);
+        });
+
+        thread.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (thread != null) {
+            thread.interrupt();
+        }
+        mSensorManager.unregisterListener(this);
 
     }
 
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        Sensor sensor = sensorEvent.sensor;
-        if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            Log.d(TAG, "onSensorChanged: X: " + sensorEvent.values[0] + "Y: " + sensorEvent.values[1] + "Z: " + sensorEvent.values[2]);
+    public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do something here if sensor accuracy changes.
+    }
 
-            double x = sensorEvent.values[0];
-            double timeStamp = sensorEvent.timestamp;
+    @Override
+    public final void onSensorChanged(SensorEvent event) {
+        double x = event.values[0];
+        double y = event.values[1];
+        double z = event.values[2];
 
-            timeStamps=timeStamp;
-            counter++;
-            xValues = x;
+        double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
 
 
-            xValue.setText("xValue: " + sensorEvent.values[0]);
-            yValue.setText("yValue: " + sensorEvent.values[1]);
-            zValue.setText("zValue: " + sensorEvent.values[2]);
+        if(plotData){
+            addEntry(event);
+            plotData = false;
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
+    @Override
     protected void onResume() {
         super.onResume();
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 0);
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mSensorManager.unregisterListener(MainActivity.this);
+        thread.interrupt();
+        super.onDestroy();
     }
 }
