@@ -1,4 +1,4 @@
-package com.example.realtimelinechart;
+package com.example.assignment2part1;
 
 import android.content.Context;
 import android.graphics.Color;
