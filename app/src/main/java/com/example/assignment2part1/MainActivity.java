@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 while (true){
                     plotData = true;
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(vale);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
