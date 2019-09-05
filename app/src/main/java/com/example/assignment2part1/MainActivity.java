@@ -26,7 +26,13 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import com.example.assignment2part1.FFT;
+
+import java.lang.reflect.Array;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
+import java.util.Queue;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "MainActivity";
@@ -37,13 +43,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView tView;
 
     private LineChart mChart;
+    private LineChart mChart2;
     private Thread thread;
     private boolean plotData = true;
     private int vale = 0;
 
     float magnitude;
 
+    int f;
 
+    Deque<Double> real = new ArrayDeque<Double>();
+
+    int windowSize = 8;
+
+    FFT fft = new FFT(windowSize);
 
 
 
@@ -51,6 +64,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FFT fft;
+
+
+
 
         sBar =  findViewById(R.id.seekBar1);
         tView = findViewById(R.id.textview1);
@@ -84,42 +102,68 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mAccelerometer != null) {
             mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
         }
-
+        mChart2 = (LineChart) findViewById(R.id.chart2);
         mChart = (LineChart) findViewById(R.id.chart1);
-
-        // enable description text
         mChart.getDescription().setEnabled(true);
+        mChart2.getDescription().setEnabled(true);
+
 
         // enable touch gestures
         mChart.setTouchEnabled(true);
+        mChart2.setTouchEnabled(true);
 
         // enable scaling and dragging
         mChart.setDragEnabled(true);
+        mChart2.setDragEnabled(true);
         mChart.setScaleEnabled(true);
+        mChart2.setScaleEnabled(true);
         mChart.setDrawGridBackground(true);
+        mChart2.setDrawGridBackground(true);
 
         // if disabled, scaling can be done on x- and y-axis separately
         mChart.setPinchZoom(true);
+        mChart2.setPinchZoom(true);
 
         // set an alternative background color
         mChart.setBackgroundColor(Color.LTGRAY);
+        mChart2.setBackgroundColor(Color.LTGRAY);
+
+        LineData data1 = new LineData();
+        data1.setValueTextColor(Color.BLUE);
+        mChart2.setData(data1);
 
         LineData data = new LineData();
         data.setValueTextColor(Color.BLUE);
-
-        //LineData data1 = new LineData();
-
-        // add empty data
         mChart.setData(data);
-        //mChart.setData(data1);
 
-
-        // get the legend (only possible after setting data)
         Legend l = mChart.getLegend();
+        Legend l2 = mChart2.getLegend();
 
-        // modify the legend ...
         l.setForm(Legend.LegendForm.LINE);
+        l2.setForm(Legend.LegendForm.LINE);
         l.setTextColor(Color.WHITE);
+        l2.setTextColor(Color.WHITE);
+
+
+        XAxis xl2 = mChart2.getXAxis();
+        xl2.setTextColor(Color.BLACK);
+        xl2.setDrawGridLines(true);
+        xl2.setAvoidFirstLastClipping(true);
+        xl2.setEnabled(true);
+
+        YAxis leftAxis2 = mChart2.getAxisLeft();
+        leftAxis2.setTextColor(Color.BLACK);
+        leftAxis2.setDrawGridLines(true);
+        leftAxis2.setAxisMaximum(30f);
+        leftAxis2.setAxisMinimum(-10f);
+        leftAxis2.setDrawGridLines(true);
+
+        YAxis rightAxis2 = mChart2.getAxisRight();
+        rightAxis2.setEnabled(false);
+
+        mChart2.getAxisLeft().setDrawGridLines(false);
+        mChart2.getXAxis().setDrawGridLines(false);
+        mChart2.setDrawBorders(false);
 
         XAxis xl = mChart.getXAxis();
         xl.setTextColor(Color.BLACK);
@@ -145,10 +189,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    private void addEntry2(){
+        LineData data1 = mChart2.getData();
+
+        if(data1 != null){
+            ILineDataSet set = data1.getDataSetByIndex(0);
+
+            if(set == null){
+                set=createSet("Magnitude",Color.BLUE);
+                data1.addDataSet(set);
+            }
+
+            data1.addEntry(new Entry(set.getEntryCount(), magnitude), 0);
+
+            data1.notifyDataChanged();
+
+            // let the chart know it's data has changed
+            mChart2.notifyDataSetChanged();
+
+            // limit the number of visible entries
+
+            mChart2.setVisibleXRangeMaximum(150);
+
+            // mChart.setVisibleYRange(30, AxisDependency.LEFT);
+
+            // move to the latest entry
+            mChart2.moveViewToX(data1.getEntryCount());
+
+        }
+
+    }
+
+
+
+
+
     private void addEntry(SensorEvent event) {
 
         LineData data = mChart.getData();
-        //LineData data1 = mChart.getData();
+
 
         if (data != null) {
 
@@ -160,9 +239,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             if (set == null) {
                 set = createSet("X Value",Color.RED);
-                //set1 = createSet1();
                 data.addDataSet(set);
-                //data1.addDataSet(set1);
+
             }
 
             if(set1 == null){
@@ -180,14 +258,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 data.addDataSet(set3);
             }
 
+
+
             data.addEntry(new Entry(set.getEntryCount(),  event.values[0]), 0);
             data.addEntry(new Entry(set1.getEntryCount(), event.values[1]), 1);
             data.addEntry(new Entry(set2.getEntryCount(), event.values[2]), 2);
-            data.addEntry(new Entry(set2.getEntryCount(), magnitude), 3);
-            data.notifyDataChanged();
+            data.addEntry(new Entry(set3.getEntryCount(), magnitude), 3);
 
-            //data1.addEntry(new Entry(set.getEntryCount(), event.values[1] + 5), 0);
-            //data1.notifyDataChanged();
+
+            data.notifyDataChanged();
 
 
             // let the chart know it's data has changed
@@ -196,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // limit the number of visible entries
 
             mChart.setVisibleXRangeMaximum(150);
-            
+
             // mChart.setVisibleYRange(30, AxisDependency.LEFT);
 
             // move to the latest entry
@@ -212,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         set.setLineWidth(1f);
         set.setColor(color);
         set.setHighlightEnabled(false);
-        set.setDrawValues(true);
+        set.setDrawValues(false);
         set.setDrawCircles(false);
         set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         set.setCubicIntensity(0.2f);
@@ -234,7 +313,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 while (true){
                     plotData = true;
                     try {
-                        Thread.sleep(vale);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -244,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         thread.start();
     }
+
 
     @Override
     protected void onPause() {
@@ -273,11 +353,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
        magnitude = mM;
 
 
+       real.add(m);
+
+       while (real.size()> windowSize){
+           real.remove();
+       }
+
+       if(real.size() == windowSize){
+           Double[] realD = (Double[])real.toArray();
+           double[] chat = new double[windowSize];
+           for (int i = 0 ; i < windowSize ; i++){
+               chat[i] = realD[i];
+           }
+
+
+           double[] imagine = new double[windowSize];
+           fft.fft(chat,imagine);
+       }
 
         if(plotData){
             addEntry(event);
+            addEntry2();
             plotData = false;
         }
+
     }
 
 
