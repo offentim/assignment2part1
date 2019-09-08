@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Deque<Double> real = new ArrayDeque<Double>();
 
-    int windowSize = 8;
+    int windowSize = 64;
 
     FFT fft = new FFT(windowSize);
 
@@ -66,6 +66,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     LineData data2;
 
     ILineDataSet set4;
+
+    int sbarprog;
+    int n;
 
 
 
@@ -83,43 +86,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //tView.setText(sBar.getProgress() + "/" + sBar.getMax());
 
         //sBar.setProgress(4);
-        sBar.setMax(160);
+        sBar.setMax(7);
 
 
 
 
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
+            int v;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(progress < 32){
-                    windowSize = 16;
-                }
-
-                if (progress >32 && progress < 64){
-                    windowSize= 32;
-                }
-
-                if (progress > 64 && progress < 96){
-                    windowSize= 64;
-                }
-                if (progress > 96 && progress < 128){
-                    windowSize= 128;
-                }
-                if (progress > 128 && progress < 160) {
-                    windowSize = 256;
-                }
+                v = progress;
 
 
+                sbarprog = sBar.getProgress()+1;
 
+                fft.setWindowSize((int)Math.pow(2,sbarprog));
 
-                String s = new String(vale+"");
-                tView.setText(s);
-
-
-
+                tView.setText(""+Integer.toString(fft.getWindowSize()));
 
             }
+
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //write custom code to on start progress
@@ -137,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         //for(int i=0; i<sensors.size(); i++){
-           // Log.d(TAG, "onCreate: Sensor "+ i + ": " + sensors.get(i).toString());
+        // Log.d(TAG, "onCreate: Sensor "+ i + ": " + sensors.get(i).toString());
         // }
 
         if (mAccelerometer != null) {
@@ -369,15 +356,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
 
-       while (real.size()> windowSize){
+       while (real.size()> fft.getWindowSize()){
            real.remove();
        }
 
 
-       if(real.size() == windowSize){
+       if(real.size() == fft.getWindowSize()){
            Object[] realD = real.toArray();
-           double[] chat = new double[windowSize];
-           for (int i = 0 ; i < windowSize ; i++){
+           double[] chat = new double[fft.getWindowSize()];
+           for (int i = 0 ; i < fft.getWindowSize() ; i++){
                chat[i] = (Double)realD[i];
 
            }
@@ -388,13 +375,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
            //System.out.println(chat);
-           double[] imagine = new double[windowSize];
+           double[] imagine = new double[fft.getWindowSize()];
            fft.fft(chat,imagine);
 
-           float powerChat[] = new float[windowSize/2];
+           float powerChat[] = new float[fft.getWindowSize()/2];
            List<Entry> fftSetData = new ArrayList<>();
 
-           for(int i = 1; i < windowSize/2; i++){
+           for(int i = 1; i < fft.getWindowSize()/2; i++){
                powerChat[i] = (float)Math.sqrt(chat[i]*chat[i]+imagine[i]*imagine[i]);
                //System.out.println(i);
                data2.addEntry(new Entry(i, powerChat[i]), 0);
