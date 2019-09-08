@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor sensors;
     private SeekBar sBar;
     private TextView tView;
+    private TextView tView2;
 
     private LineChart mChart;
     private LineChart mChart2;
@@ -70,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int sbarprog;
     int n;
 
+    double[] chatFFT;
+
 
 
 
@@ -80,9 +83,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         sBar =  findViewById(R.id.seekBar1);
         tView = findViewById(R.id.textview1);
+        tView2 = findViewById(R.id.tView2);
         //tView.setText(sBar.getProgress() + "/" + sBar.getMax());
 
         //sBar.setProgress(4);
@@ -116,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             }
         });
+
 
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -217,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mChart.setDrawBorders(false);
 
         feedMultiple();
+
 
     }
 
@@ -369,14 +374,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
            }
 
-           //set4=createSet("FFT",Color.BLUE);
-           //data2.addDataSet(set4);
-
-
-
-           //System.out.println(chat);
            double[] imagine = new double[fft.getWindowSize()];
            fft.fft(chat,imagine);
+           chatFFT = chat;
+           tView2.setText(Double.toString(chat[1]));
 
            float powerChat[] = new float[fft.getWindowSize()/2];
            List<Entry> fftSetData = new ArrayList<>();

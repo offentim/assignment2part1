@@ -24,7 +24,7 @@
 
     <SeekBar
         android:id="@+id/seekBar1"
-        android:layout_width="306dp"
+        android:layout_width="103dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
@@ -50,7 +50,7 @@
         android:textSize="20dp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/seekBar1"
+        app:layout_constraintStart_toEndOf="@+id/tView2"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.github.mikephil.charting.charts.LineChart
@@ -71,4 +71,15 @@
         app:layout_constraintVertical_bias="0.0">
 
     </com.github.mikephil.charting.charts.LineChart>
+
+    <TextView
+        android:id="@+id/tView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@+id/seekBar1"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
