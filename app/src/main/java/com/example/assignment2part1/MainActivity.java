@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private LineChart mChart2;
     private Thread thread;
     private boolean plotData = true;
-    private int vale = 2;
+    int vale = 2;
 
     float magnitude;
 
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     Deque<Double> real = new ArrayDeque<Double>();
 
-    int windowSize = 64;
+    int windowSize = 8;
 
     FFT fft = new FFT(windowSize);
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     ILineDataSet set4;
 
 
-    int[] values = {2,4,8,16,32,64,129,256};
+
 
 
 
@@ -82,7 +82,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tView = findViewById(R.id.textview1);
         //tView.setText(sBar.getProgress() + "/" + sBar.getMax());
 
-        sBar.setProgress(2);
+        //sBar.setProgress(4);
+        sBar.setMax(160);
 
 
 
@@ -91,9 +92,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String ss = new String(progress+"");
-                tView.setText(ss);
-                //vale = fft.setWindowSize();
+                if(progress < 32){
+                    windowSize = 16;
+                }
+
+                if (progress >32 && progress < 64){
+                    windowSize= 32;
+                }
+
+                if (progress > 64 && progress < 96){
+                    windowSize= 64;
+                }
+                if (progress > 96 && progress < 128){
+                    windowSize= 128;
+                }
+                if (progress > 128 && progress < 160) {
+                    windowSize = 256;
+                }
+
+
+
+
+                String s = new String(vale+"");
+                tView.setText(s);
+
+
 
 
             }
@@ -103,8 +126,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                //String s = new String(vale+"");
-                //tView.setText(s);
+
             }
         });
 
