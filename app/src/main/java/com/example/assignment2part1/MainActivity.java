@@ -92,9 +92,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
 
-
-
-
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int v;
             @Override
