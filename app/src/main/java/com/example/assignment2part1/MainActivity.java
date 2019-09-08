@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 //import android.support.v7.app.AppCompatActivity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.SeekBar;
@@ -87,6 +88,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //sBar.setProgress(4);
         sBar.setMax(7);
+
+
+
 
 
 
@@ -388,6 +392,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                fftSetData.add(new Entry(i, powerChat[i]));
 
            }
+
 
 
            LineDataSet set5 = new LineDataSet(fftSetData,"ftt");
