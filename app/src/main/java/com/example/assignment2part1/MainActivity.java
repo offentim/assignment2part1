@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private LineChart mChart2;
     private Thread thread;
     private boolean plotData = true;
-    private int vale = 2;
+    int vale = 2;
 
     float magnitude;
 
@@ -67,8 +67,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     ILineDataSet set4;
 
+    int sbarprog;
+    int n;
 
-    int[] values = {2,4,8,16,32,64,129,256};
+
+
 
 
 
@@ -82,29 +85,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tView = findViewById(R.id.textview1);
         //tView.setText(sBar.getProgress() + "/" + sBar.getMax());
 
-        sBar.setProgress(2);
+        //sBar.setProgress(4);
+        sBar.setMax(7);
 
 
 
 
         sBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
+            int v;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                String ss = new String(progress+"");
-                tView.setText(ss);
-                //vale = fft.setWindowSize();
+                v = progress;
 
+
+                sbarprog = sBar.getProgress()+1;
+
+                fft.setWindowSize((int)Math.pow(2,sbarprog));
+
+                tView.setText(""+Integer.toString(fft.getWindowSize()));
 
             }
+
+
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //write custom code to on start progress
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                //String s = new String(vale+"");
-                //tView.setText(s);
+
             }
         });
 
@@ -115,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         List<Sensor> sensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         //for(int i=0; i<sensors.size(); i++){
-           // Log.d(TAG, "onCreate: Sensor "+ i + ": " + sensors.get(i).toString());
+        // Log.d(TAG, "onCreate: Sensor "+ i + ": " + sensors.get(i).toString());
         // }
 
         if (mAccelerometer != null) {
@@ -347,15 +356,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
 
-       while (real.size()> windowSize){
+       while (real.size()> fft.getWindowSize()){
            real.remove();
        }
 
 
-       if(real.size() == windowSize){
+       if(real.size() == fft.getWindowSize()){
            Object[] realD = real.toArray();
-           double[] chat = new double[windowSize];
-           for (int i = 0 ; i < windowSize ; i++){
+           double[] chat = new double[fft.getWindowSize()];
+           for (int i = 0 ; i < fft.getWindowSize() ; i++){
                chat[i] = (Double)realD[i];
 
            }
@@ -366,13 +375,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
            //System.out.println(chat);
-           double[] imagine = new double[windowSize];
+           double[] imagine = new double[fft.getWindowSize()];
            fft.fft(chat,imagine);
 
-           float powerChat[] = new float[windowSize/2];
+           float powerChat[] = new float[fft.getWindowSize()/2];
            List<Entry> fftSetData = new ArrayList<>();
 
-           for(int i = 1; i < windowSize/2; i++){
+           for(int i = 1; i < fft.getWindowSize()/2; i++){
                powerChat[i] = (float)Math.sqrt(chat[i]*chat[i]+imagine[i]*imagine[i]);
                //System.out.println(i);
                data2.addEntry(new Entry(i, powerChat[i]), 0);
