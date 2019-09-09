@@ -9,14 +9,11 @@ import android.hardware.SensorManager;
 //import android.support.v7.app.AppCompatActivity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.assignment2part1.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -25,18 +22,11 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
-import com.example.assignment2part1.FFT;
-
-import java.lang.reflect.Array;
-import java.sql.SQLOutput;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "MainActivity";
@@ -45,6 +35,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor sensors;
     private SeekBar sBar;
     private TextView tView;
+
+    private MediaPlayer mediaPlayerWalk;
+    private MediaPlayer mediaPlayerRun;
+    private MediaPlayer mediaPlayerStand;
 
     private LineChart mChart;
     private LineChart mChart2;
@@ -72,8 +66,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int n;
 
 
-
-
+    private double maxWalk;
+    private int iiWalk;
+    //private int standing;
 
 
     @Override
@@ -88,6 +83,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //sBar.setProgress(4);
         sBar.setMax(7);
+        System.out.println(maxWalk);
+
+        mediaPlayerWalk = MediaPlayer.create(this, R.raw.sound2);
+        mediaPlayerRun = MediaPlayer.create(this,R.raw.sound1);
+
 
 
 
@@ -355,6 +355,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
        real.add(m);
 
+       double max = 0;
+       int ii = 0;
+
+
 
 
        while (real.size()> fft.getWindowSize()){
@@ -379,6 +383,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
            double[] imagine = new double[fft.getWindowSize()];
            fft.fft(chat,imagine);
 
+
+
+
+
            float powerChat[] = new float[fft.getWindowSize()/2];
            List<Entry> fftSetData = new ArrayList<>();
 
@@ -388,6 +396,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                data2.addEntry(new Entry(i, powerChat[i]), 0);
                fftSetData.add(new Entry(i, powerChat[i]));
 
+           }
+
+           for(int i=0; i<powerChat.length;i++){
+               if(powerChat[i]>max){
+                   max = powerChat[i];
+                   ii = i;
+
+               }
+               //System.out.println(max);
+               //System.out.println(Integer.toString(ii));
+
+           }
+           if (max > 30 && max < 150) {
+               mediaPlayerWalk.start();
+           }else if(max < 30  && mediaPlayerWalk.isPlaying()){
+               mediaPlayerWalk.pause();
+           }
+           else if(max >150){
+               mediaPlayerWalk.pause();
+               mediaPlayerRun.start();
+           }
+           else if((max<100 && mediaPlayerRun.isPlaying())){
+               mediaPlayerRun.pause();
            }
 
 
