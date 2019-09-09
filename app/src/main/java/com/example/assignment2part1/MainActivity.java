@@ -1,6 +1,7 @@
 package com.example.assignment2part1;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,7 +10,10 @@ import android.hardware.SensorManager;
 //import android.support.v7.app.AppCompatActivity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +84,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        int x12 = 5;
+        if (x12 == 5) {
+            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.sound2);
+            mediaPlayer.start(); // no need to call prepare(); create() does that for you
+        }
+
+
+
+
 
 
         sBar =  findViewById(R.id.seekBar1);
@@ -221,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mChart.setDrawBorders(false);
 
         feedMultiple();
+
 
     }
 
@@ -422,6 +437,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
+
     }
 
     @Override
@@ -430,4 +446,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         thread.interrupt();
         super.onDestroy();
     }
+
+
 }
