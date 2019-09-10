@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sBar.setMax(7);
         System.out.println(maxWalk);
 
-        mediaPlayerWalk = MediaPlayer.create(this, R.raw.sound2);
-        mediaPlayerRun = MediaPlayer.create(this,R.raw.sound1);
+        mediaPlayerWalk = MediaPlayer.create(this, R.raw.walkingww);
+        mediaPlayerRun = MediaPlayer.create(this,R.raw.sprinting);
 
 
 
