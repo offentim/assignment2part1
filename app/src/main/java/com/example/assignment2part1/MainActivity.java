@@ -1,7 +1,6 @@
 package com.example.assignment2part1;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -10,17 +9,11 @@ import android.hardware.SensorManager;
 //import android.support.v7.app.AppCompatActivity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.assignment2part1.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -29,18 +22,11 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
-import com.example.assignment2part1.FFT;
-
-import java.lang.reflect.Array;
-import java.sql.SQLOutput;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "MainActivity";
@@ -49,6 +35,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor sensors;
     private SeekBar sBar;
     private TextView tView;
+
+    private MediaPlayer mediaPlayerWalk;
+    private MediaPlayer mediaPlayerRun;
+    private MediaPlayer mediaPlayerStand;
 
     private LineChart mChart;
     private LineChart mChart2;
@@ -76,24 +66,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int n;
 
 
-
-
+    private double maxWalk;
+    private int iiWalk;
+    //private int standing;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        int x12 = 5;
-        if (x12 == 5) {
-            MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.sound2);
-            mediaPlayer.start(); // no need to call prepare(); create() does that for you
-        }
-
-
-
-
 
 
         sBar =  findViewById(R.id.seekBar1);
@@ -102,8 +83,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         //sBar.setProgress(4);
         sBar.setMax(7);
+        System.out.println(maxWalk);
 
-
+        mediaPlayerWalk = MediaPlayer.create(this, R.raw.sound2);
+        mediaPlayerRun = MediaPlayer.create(this,R.raw.sound1);
 
 
 
@@ -236,7 +219,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         feedMultiple();
 
-
     }
 
 
@@ -365,65 +347,96 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float y = event.values[1];
         float z = event.values[2];
 
-       double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
-       float mM = (float)m;
+        double m = Math.sqrt((Math.pow(x,2))+(Math.pow(y,2))+(Math.pow(z,2)));
+        float mM = (float)m;
 
-       magnitude = mM;
-
-
-       real.add(m);
+        magnitude = mM;
 
 
+        real.add(m);
 
-       while (real.size()> fft.getWindowSize()){
-           real.remove();
-       }
-
-
-       if(real.size() == fft.getWindowSize()){
-           Object[] realD = real.toArray();
-           double[] chat = new double[fft.getWindowSize()];
-           for (int i = 0 ; i < fft.getWindowSize() ; i++){
-               chat[i] = (Double)realD[i];
-
-           }
-
-           //set4=createSet("FFT",Color.BLUE);
-           //data2.addDataSet(set4);
+        double max = 0;
+        int ii = 0;
 
 
 
-           //System.out.println(chat);
-           double[] imagine = new double[fft.getWindowSize()];
-           fft.fft(chat,imagine);
 
-           float powerChat[] = new float[fft.getWindowSize()/2];
-           List<Entry> fftSetData = new ArrayList<>();
-
-           for(int i = 1; i < fft.getWindowSize()/2; i++){
-               powerChat[i] = (float)Math.sqrt(chat[i]*chat[i]+imagine[i]*imagine[i]);
-               //System.out.println(i);
-               data2.addEntry(new Entry(i, powerChat[i]), 0);
-               fftSetData.add(new Entry(i, powerChat[i]));
-
-           }
+        while (real.size()> fft.getWindowSize()){
+            real.remove();
+        }
 
 
+        if(real.size() == fft.getWindowSize()){
+            Object[] realD = real.toArray();
+            double[] chat = new double[fft.getWindowSize()];
+            for (int i = 0 ; i < fft.getWindowSize() ; i++){
+                chat[i] = (Double)realD[i];
 
-           LineDataSet set5 = new LineDataSet(fftSetData,"ftt");
-           data2 = new LineData(set5);
-           set5.setHighlightEnabled(false);
-           set5.setDrawValues(false);
-           set5.setDrawCircles(false);
+            }
 
-           mChart2.setData(data2);
-           data2.notifyDataChanged();
-           mChart2.notifyDataSetChanged();
-           mChart2.setVisibleXRangeMaximum(150);
-           mChart2.invalidate();
-           //mChart2.moveViewToX(data2.getEntryCount());
-           //System.out.println(Arrays.toString(chat));
-       }
+            //set4=createSet("FFT",Color.BLUE);
+            //data2.addDataSet(set4);
+
+
+
+            //System.out.println(chat);
+            double[] imagine = new double[fft.getWindowSize()];
+            fft.fft(chat,imagine);
+
+
+
+
+
+            float powerChat[] = new float[fft.getWindowSize()/2];
+            List<Entry> fftSetData = new ArrayList<>();
+
+            for(int i = 1; i < fft.getWindowSize()/2; i++){
+                powerChat[i] = (float)Math.sqrt(chat[i]*chat[i]+imagine[i]*imagine[i]);
+                //System.out.println(i);
+                data2.addEntry(new Entry(i, powerChat[i]), 0);
+                fftSetData.add(new Entry(i, powerChat[i]));
+
+            }
+
+            for(int i=0; i<powerChat.length;i++){
+                if(powerChat[i]>max){
+                    max = powerChat[i];
+                    ii = i;
+
+                }
+                //System.out.println(max);
+                //System.out.println(Integer.toString(ii));
+
+            }
+            if (max > 20 && max < 150) {
+                mediaPlayerWalk.start();
+            }else if(max < 20  && mediaPlayerWalk.isPlaying()){
+                mediaPlayerWalk.pause();
+            }
+            if(max >150 && mediaPlayerWalk.isPlaying()){
+                mediaPlayerWalk.pause();
+                mediaPlayerRun.start();
+            }
+            else if((max<150 && mediaPlayerRun.isPlaying())){
+                mediaPlayerRun.pause();
+            }
+
+
+
+            LineDataSet set5 = new LineDataSet(fftSetData,"ftt");
+            data2 = new LineData(set5);
+            set5.setHighlightEnabled(false);
+            set5.setDrawValues(false);
+            set5.setDrawCircles(false);
+
+            mChart2.setData(data2);
+            data2.notifyDataChanged();
+            mChart2.notifyDataSetChanged();
+            mChart2.setVisibleXRangeMaximum(150);
+            mChart2.invalidate();
+            //mChart2.moveViewToX(data2.getEntryCount());
+            //System.out.println(Arrays.toString(chat));
+        }
 
         if(plotData){
             addEntry(event);
@@ -437,7 +450,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
         mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-
     }
 
     @Override
@@ -446,6 +458,4 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         thread.interrupt();
         super.onDestroy();
     }
-
-
 }
