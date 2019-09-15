@@ -377,8 +377,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             //set4=createSet("FFT",Color.BLUE);
             //data2.addDataSet(set4);
 
-
-
             //System.out.println(chat);
             double[] imagine = new double[fft.getWindowSize()];
             fft.fft(chat,imagine);
